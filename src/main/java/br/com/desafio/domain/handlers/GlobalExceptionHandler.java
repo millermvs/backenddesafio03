@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class GlobalExceptionHandler {
 	
 	// Captura qualquer erro interno do servidor (500)
-	@ExceptionHandler(Exception.class)
+	/*@ExceptionHandler(Exception.class)
 	public ResponseEntity<Object> handlerErroInterno(Exception ex) {
 	    Map<String, Object> body = new HashMap<String, Object>();
 	    body.put("datahora", LocalDateTime.now());
@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
 	    body.put("fordev", ex.getMessage());
 
 	    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value()).body(body);
-	}
+	}*/
 
 	// Captura erros de preenchimento de JSON (corpo malformado)
 	@ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
