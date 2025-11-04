@@ -37,9 +37,9 @@ public class TurmaController {
 		return ResponseEntity.ok(response);
 	}
 	
-	@GetMapping("consultar/{id}")
-	public ResponseEntity<ConsultarTurmaResponseDto> get(@PathVariable Long id) {
-		var response = turmaService.consultarTurma(id);
+	@GetMapping("consultar/{numeroTurma}")
+	public ResponseEntity<ConsultarTurmaResponseDto> get(@PathVariable String numeroTurma) {
+		var response = turmaService.consultarTurma(numeroTurma);
 		return ResponseEntity.ok(response);
 	}
 	

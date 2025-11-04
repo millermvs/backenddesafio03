@@ -25,5 +25,20 @@ public class Turma {
 	
 	@Column
 	private String anoLetivo;
+	
+	@Column
+	private Long id_aluno1;
+	
+	@Column
+	private Long id_aluno2;
+	
+	@Column
+	private Long id_aluno3;
+	
+	@Column
+	private Long id_aluno4;
+	
+	@Column
+	private Long id_aluno5;
 
 }

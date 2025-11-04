@@ -11,5 +11,6 @@ public class EditarAlunoRequestDto {
 	private String nome;	
 	private String cpf;	
 	private String email;
+	private Long idTurma;
 
 }

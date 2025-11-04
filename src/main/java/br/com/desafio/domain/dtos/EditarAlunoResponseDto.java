@@ -10,5 +10,6 @@ public class EditarAlunoResponseDto {
 	private String nome;	
 	private String cpf;	
 	private String email;
+	private Long numeroTurma;
 	
 }

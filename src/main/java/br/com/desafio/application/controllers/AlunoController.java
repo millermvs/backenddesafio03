@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.desafio.domain.dtos.CadastraAlunoTurmaRequestDto;
+import br.com.desafio.domain.dtos.CadastraAlunoTurmaResponseDto;
 import br.com.desafio.domain.dtos.CadastrarAlunoRequestDto;
 import br.com.desafio.domain.dtos.CadastrarAlunoResponseDto;
 import br.com.desafio.domain.dtos.ConsultarAlunoResponseDto;
@@ -32,6 +34,12 @@ public class AlunoController {
 		var response = alunoService.cadastrarAluno(request);
 		return ResponseEntity.ok(response);
 	}
+	
+	@PostMapping("cadastrar/turma")
+	public ResponseEntity<CadastraAlunoTurmaResponseDto> post(@Valid @RequestBody CadastraAlunoTurmaRequestDto request) {
+		var response = alunoService.cadastrarAlunoNaTurma(request);
+		return ResponseEntity.ok(response);
+	}
 
 	@PutMapping("editar")
 	public ResponseEntity<EditarAlunoResponseDto> put(@RequestBody EditarAlunoRequestDto request) {
@@ -51,4 +59,5 @@ public class AlunoController {
 		return ResponseEntity.ok(response);
 
 	}
+	
 }
