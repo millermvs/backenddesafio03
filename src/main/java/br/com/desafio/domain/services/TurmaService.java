@@ -6,24 +6,32 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import br.com.desafio.domain.dtos.CadastraAlunoTurmaRequestDto;
-import br.com.desafio.domain.dtos.CadastraAlunoTurmaResponseDto;
-import br.com.desafio.domain.dtos.CadastrarTurmaRequestDto;
-import br.com.desafio.domain.dtos.CadastrarTurmaResponseDto;
-import br.com.desafio.domain.dtos.ConsultarTurmaResponseDto;
-import br.com.desafio.domain.dtos.DeletarTurmaResponseDto;
-import br.com.desafio.domain.dtos.EditarTurmaRequestDto;
-import br.com.desafio.domain.dtos.EditarTurmaResponseDto;
+import br.com.desafio.domain.dtos.request.aluno.AddAlunoToTurmaRequestDto;
+import br.com.desafio.domain.dtos.request.aluno.AlunoResumoDto;
+import br.com.desafio.domain.dtos.request.turma.CadastrarTurmaRequestDto;
+import br.com.desafio.domain.dtos.request.turma.EditarTurmaRequestDto;
+import br.com.desafio.domain.dtos.response.aluno.AddAlunoToTurmaResponseDto;
+import br.com.desafio.domain.dtos.response.turma.CadastrarTurmaResponseDto;
+import br.com.desafio.domain.dtos.response.turma.ConsultarTurmaResponseDto;
+import br.com.desafio.domain.dtos.response.turma.DeletarTurmaResponseDto;
+import br.com.desafio.domain.dtos.response.turma.EditarTurmaResponseDto;
 import br.com.desafio.domain.entities.Turma;
-import br.com.desafio.domain.exceptions.TurmaCheiaException;
+import br.com.desafio.domain.exceptions.AlunoJaCadastradoNestaTurmaException;
+import br.com.desafio.domain.exceptions.AlunoNaoEncontradoException;
 import br.com.desafio.domain.exceptions.TurmaNaoEncontradaException;
+import br.com.desafio.domain.exceptions.TurmaNaoPodeSerExcluidaException;
+import br.com.desafio.infrastructure.repositories.AlunoRepository;
 import br.com.desafio.infrastructure.repositories.TurmaRepository;
+import jakarta.transaction.Transactional;
 
 @Service
 public class TurmaService {
 
 	@Autowired
 	private TurmaRepository turmaRepository;
+
+	@Autowired
+	private AlunoRepository alunoRepository;
 
 	public CadastrarTurmaResponseDto cadastrarTurma(CadastrarTurmaRequestDto request) {
 
@@ -33,7 +41,7 @@ public class TurmaService {
 		turmaRepository.save(turma);
 
 		var response = new CadastrarTurmaResponseDto();
-		response.setId(turma.getId_turma());
+		response.setId(turma.getIdTurma());
 		response.setNumeroTurma(turma.getNumeroTurma());
 		response.setAnoLetivo(turma.getAnoLetivo());
 
@@ -53,125 +61,111 @@ public class TurmaService {
 		turmaRepository.save(turma);
 
 		var response = new EditarTurmaResponseDto();
-		response.setId_turma(turma.getId_turma());
+		response.setId_turma(turma.getIdTurma());
 		response.setNumeroTurma(turma.getNumeroTurma());
 		response.setAnoLetivo(turma.getAnoLetivo());
 
 		return response;
-
 	}
 
 	public ConsultarTurmaResponseDto consultarTurma(String nome) {
-		var turmaFound = turmaRepository.findByNome(nome);
 
-		if (turmaFound == null)
-			throw new TurmaNaoEncontradaException();
-
-		var turma = turmaFound;
-
-		var response = new ConsultarTurmaResponseDto();
-		response.setId_turma(turma.getId_turma());
-		response.setNumeroTurma(turma.getNumeroTurma());
-		response.setAnoLetivo(turma.getAnoLetivo());
-		return response;
-	}
-
-	public DeletarTurmaResponseDto deletarTurma(Long id) {
-
-		var turmaFound = turmaRepository.findById(id);
+		var turmaFound = turmaRepository.findByNumeroTurma(nome);
 
 		if (turmaFound.isEmpty())
 			throw new TurmaNaoEncontradaException();
 
-		turmaRepository.deleteById(id);
+		List<AlunoResumoDto> listaDeAlunos = new ArrayList<AlunoResumoDto>();
+
+		for (var aluno : turmaFound.get().getAlunos()) {
+			var dtoItem = new AlunoResumoDto();
+			dtoItem.setId(aluno.getIdAluno());
+			dtoItem.setNome(aluno.getNome());
+			listaDeAlunos.add(dtoItem);
+		}
+
+		var turma = turmaFound.get();
+		var response = new ConsultarTurmaResponseDto();
+		response.setId_turma(turma.getIdTurma());
+		response.setNumeroTurma(turma.getNumeroTurma());
+		response.setAnoLetivo(turma.getAnoLetivo());
+		response.setAlunos(listaDeAlunos);
+		return response;
+	}
+
+	public DeletarTurmaResponseDto deletarTurma(String numeroTurma) {
+
+		var turmaFound = turmaRepository.findByNumeroTurma(numeroTurma);
+
+		if (turmaFound.isEmpty())
+			throw new TurmaNaoEncontradaException();
+		
+		if(turmaFound.get().getAlunos().size()>0)
+			throw new TurmaNaoPodeSerExcluidaException();
+	
+
+		turmaRepository.deleteById(turmaFound.get().getIdTurma());
 
 		var response = new DeletarTurmaResponseDto();
 		response.setNumeroTurma(turmaFound.get().getNumeroTurma());
 		response.setAnoLetivo(turmaFound.get().getAnoLetivo());
+		response.setResposta("Turma excluída.");
 
 		return response;
-
 	}
 
-	public Boolean verificarAlunoNestaTurma(CadastraAlunoTurmaRequestDto request) {
+	public Boolean verificarAlunoNestaTurma(AddAlunoToTurmaRequestDto request) {
 
-		var turmaFound = turmaRepository.findByNome(request.getNumeroTurma());
+		var turmaFound = turmaRepository.findByNumeroTurma(request.getNumeroTurma());
 
-		if (turmaFound == null)
+		if (turmaFound.isEmpty())
 			throw new TurmaNaoEncontradaException();
 
-		var alunoNovo = request.getIdAluno();
+		var alunosTurma = turmaFound.get().getAlunos();
 
-		var aluno01 = turmaFound.getId_aluno1();
-		var aluno02 = turmaFound.getId_aluno2();
-		var aluno03 = turmaFound.getId_aluno3();
-		var aluno04 = turmaFound.getId_aluno4();
-		var aluno05 = turmaFound.getId_aluno5();
+		var alunoNovo = alunoRepository.findById(request.getIdAluno());
+		if (alunoNovo.isEmpty())
+			throw new AlunoNaoEncontradoException();
 
-		if (alunoNovo.equals(aluno01) || alunoNovo.equals(aluno02) || alunoNovo.equals(aluno03)
-				|| alunoNovo.equals(aluno04) || alunoNovo.equals(aluno05))
-			return true;
+		if (alunosTurma.contains(alunoNovo.get()))
+			throw new AlunoJaCadastradoNestaTurmaException();
 
 		return false;
 	}
 
-	public CadastraAlunoTurmaResponseDto turmaCadastrarAluno(CadastraAlunoTurmaRequestDto request) {
+	@Transactional
+	public AddAlunoToTurmaResponseDto turmaCadastrarAluno(AddAlunoToTurmaRequestDto request) {
 
-		var turmaFound = turmaRepository.findByNome(request.getNumeroTurma());
+		var turmaFound = turmaRepository.findByNumeroTurma(request.getNumeroTurma());
+		var alunoFound = alunoRepository.findById(request.getIdAluno()).get();
 
-		var aluno01 = turmaFound.getId_aluno1();
-		var aluno02 = turmaFound.getId_aluno2();
-		var aluno03 = turmaFound.getId_aluno3();
-		var aluno04 = turmaFound.getId_aluno4();
-		var aluno05 = turmaFound.getId_aluno5();
+		if (turmaFound.isEmpty())
+			throw new TurmaNaoEncontradaException();
 
-		if (aluno01 != null && aluno02 != null && aluno03 != null && aluno04 != null && aluno05 != null)
-			throw new TurmaCheiaException();
+		var turma = turmaFound.get();
+		turma.getAlunos().add(alunoFound);
+		alunoFound.getTurmas().add(turma);
+		turmaRepository.save(turma);
 
-		var response = new CadastraAlunoTurmaResponseDto();
+		var response = new AddAlunoToTurmaResponseDto();
+		response.setIdAluno(request.getIdAluno());
+		response.setIdTurma(turma.getIdTurma());
+		response.setNomeAluno(alunoFound.getNome());
+		response.setNumeroTurma(turma.getNumeroTurma());
+		response.setResposta("Adicionado na turma.");
 
-		List<Long> listAlunos = new ArrayList<Long>();
-		listAlunos.add(aluno01);
-		listAlunos.add(aluno02);
-		listAlunos.add(aluno03);
-		listAlunos.add(aluno04);
-		listAlunos.add(aluno05);
-
-			for (var i = 0; i < listAlunos.size(); i++) {
-				if (listAlunos.get(i)==null) {
-					listAlunos.set(i, request.getIdAluno());					
-					turmaFound.setId_aluno1(listAlunos.get(0));
-					turmaFound.setId_aluno2(listAlunos.get(1));
-					turmaFound.setId_aluno3(listAlunos.get(2));
-					turmaFound.setId_aluno4(listAlunos.get(3));
-					turmaFound.setId_aluno5(listAlunos.get(4));
-					turmaRepository.save(turmaFound);
-					break;
-				}
-				
-		}
-
-			response.setIdAluno(request.getIdAluno());
-			response.setIdTurma(turmaFound.getId_turma());
-		
-		
 		return response;
 
 	}
 
 	public Boolean turmaCheia(String numeroTurma) {
 
-		var turmaFound = turmaRepository.findByNome(numeroTurma);
+		var turmaFound = turmaRepository.findByNumeroTurma(numeroTurma).get();
 
-		var aluno01 = turmaFound.getId_aluno1();
-		var aluno02 = turmaFound.getId_aluno2();
-		var aluno03 = turmaFound.getId_aluno3();
-		var aluno04 = turmaFound.getId_aluno4();
-		var aluno05 = turmaFound.getId_aluno5();
-
-		if (aluno01 != null && aluno02 != null && aluno03 != null && aluno04 != null && aluno05 != null)
+		if (turmaFound.getAlunos().size() > 4)
 			return true;
-		
+
 		return false;
+
 	}
 }

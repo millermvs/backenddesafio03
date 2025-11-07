@@ -1,12 +1,13 @@
-package br.com.desafio.domain.dtos;
+package br.com.desafio.domain.dtos.request.turma;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class EditarTurmaResponseDto {
-	private Long id_turma;
+public class CadastrarTurmaRequestDto {
+	
 	private String numeroTurma;
 	private String anoLetivo;
+
 }

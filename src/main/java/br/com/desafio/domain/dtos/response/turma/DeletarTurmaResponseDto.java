@@ -1,15 +1,14 @@
-package br.com.desafio.domain.dtos;
+package br.com.desafio.domain.dtos.response.turma;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class CadastrarTurmaResponseDto {
+public class DeletarTurmaResponseDto {
 	
-	private Long id;
 	private String numeroTurma;
 	private String anoLetivo;
-	
+	private String resposta;
 
 }

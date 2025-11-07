@@ -1,11 +1,11 @@
-package br.com.desafio.domain.dtos;
+package br.com.desafio.domain.dtos.response.aluno;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class CadastraAlunoTurmaResponseDto {
+public class AddAlunoToTurmaResponseDto {
 
 	private Long idAluno;
 	private String nomeAluno;

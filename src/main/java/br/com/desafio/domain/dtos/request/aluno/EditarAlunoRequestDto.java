@@ -1,15 +1,15 @@
-package br.com.desafio.domain.dtos;
+package br.com.desafio.domain.dtos.request.aluno;
 
 import lombok.Getter;
 import lombok.Setter;
 
-@Setter
 @Getter
-public class EditarAlunoResponseDto {
-
+@Setter
+public class EditarAlunoRequestDto {
+	
+	private Long id;
 	private String nome;	
 	private String cpf;	
 	private String email;
-	private Long numeroTurma;
-	
+
 }

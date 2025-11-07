@@ -11,14 +11,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.desafio.domain.dtos.CadastraAlunoTurmaRequestDto;
-import br.com.desafio.domain.dtos.CadastraAlunoTurmaResponseDto;
-import br.com.desafio.domain.dtos.CadastrarAlunoRequestDto;
-import br.com.desafio.domain.dtos.CadastrarAlunoResponseDto;
-import br.com.desafio.domain.dtos.ConsultarAlunoResponseDto;
-import br.com.desafio.domain.dtos.DeletarAlunoResponseDto;
-import br.com.desafio.domain.dtos.EditarAlunoRequestDto;
-import br.com.desafio.domain.dtos.EditarAlunoResponseDto;
+import br.com.desafio.domain.dtos.request.aluno.AddAlunoToTurmaRequestDto;
+import br.com.desafio.domain.dtos.request.aluno.CadastrarAlunoRequestDto;
+import br.com.desafio.domain.dtos.request.aluno.EditarAlunoRequestDto;
+import br.com.desafio.domain.dtos.response.aluno.AddAlunoToTurmaResponseDto;
+import br.com.desafio.domain.dtos.response.aluno.CadastrarAlunoResponseDto;
+import br.com.desafio.domain.dtos.response.aluno.ConsultarAlunoResponseDto;
+import br.com.desafio.domain.dtos.response.aluno.DeletarAlunoResponseDto;
+import br.com.desafio.domain.dtos.response.aluno.EditarAlunoResponseDto;
 import br.com.desafio.domain.services.AlunoService;
 import jakarta.validation.Valid;
 
@@ -35,8 +35,8 @@ public class AlunoController {
 		return ResponseEntity.ok(response);
 	}
 	
-	@PostMapping("cadastrar/turma")
-	public ResponseEntity<CadastraAlunoTurmaResponseDto> post(@Valid @RequestBody CadastraAlunoTurmaRequestDto request) {
+	@PostMapping("add/turma")
+	public ResponseEntity<AddAlunoToTurmaResponseDto> post(@Valid @RequestBody AddAlunoToTurmaRequestDto request) {
 		var response = alunoService.cadastrarAlunoNaTurma(request);
 		return ResponseEntity.ok(response);
 	}

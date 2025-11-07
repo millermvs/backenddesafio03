@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.desafio.domain.dtos.CadastrarTurmaRequestDto;
-import br.com.desafio.domain.dtos.CadastrarTurmaResponseDto;
-import br.com.desafio.domain.dtos.ConsultarTurmaResponseDto;
-import br.com.desafio.domain.dtos.DeletarTurmaResponseDto;
-import br.com.desafio.domain.dtos.EditarTurmaRequestDto;
+import br.com.desafio.domain.dtos.request.turma.CadastrarTurmaRequestDto;
+import br.com.desafio.domain.dtos.request.turma.EditarTurmaRequestDto;
+import br.com.desafio.domain.dtos.response.turma.CadastrarTurmaResponseDto;
+import br.com.desafio.domain.dtos.response.turma.ConsultarTurmaResponseDto;
+import br.com.desafio.domain.dtos.response.turma.DeletarTurmaResponseDto;
 import br.com.desafio.domain.services.TurmaService;
 
 @RestController
@@ -30,22 +30,23 @@ public class TurmaController {
 		var response = turmaService.cadastrarTurma(request);
 		return ResponseEntity.ok(response);
 	}
-	
+
 	@PutMapping("editar")
-	public ResponseEntity<?> put(@RequestBody EditarTurmaRequestDto request){
+	public ResponseEntity<?> put(@RequestBody EditarTurmaRequestDto request) {
 		var response = turmaService.editarTurma(request);
 		return ResponseEntity.ok(response);
 	}
-	
+
 	@GetMapping("consultar/{numeroTurma}")
 	public ResponseEntity<ConsultarTurmaResponseDto> get(@PathVariable String numeroTurma) {
 		var response = turmaService.consultarTurma(numeroTurma);
 		return ResponseEntity.ok(response);
 	}
+
 	
-	@DeleteMapping("deletar/{id}")
-	public ResponseEntity<DeletarTurmaResponseDto> delete(@PathVariable Long id){
-		var response = turmaService.deletarTurma(id);
-		return ResponseEntity.ok(response);
-	}
+	 @DeleteMapping("deletar/{numeroTurma}") 
+	 public ResponseEntity<DeletarTurmaResponseDto> delete(@PathVariable String numeroTurma){ 
+		 var response = turmaService.deletarTurma(numeroTurma);
+		 	return ResponseEntity.ok(response); 
+	}	 
 }
